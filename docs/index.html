@@ -315,6 +315,18 @@ adminResetBtn.addEventListener('click',()=>{
     }
 });
 
+    // عند الضغط على الزر نفسه يظهر نافذة تسجيل الدخول
+document.getElementById('admin-login-btn').addEventListener('click', ()=>{
+    const username = prompt("ادخل اسم المستخدم:");
+    const password = prompt("ادخل كلمة المرور:");
+    if(username==='yazan' && password==='ya20066'){
+        document.getElementById('admin-reset-btn').style.display='inline-block';
+        alert("تم تسجيل الدخول كمدير");
+    } else {
+        alert("اسم المستخدم أو كلمة المرور خاطئ");
+    }
+});
+
 document.addEventListener('DOMContentLoaded',()=>{
     const savedVotes = localStorage.getItem('pollVotes');
     if(savedVotes) votes=JSON.parse(savedVotes);
@@ -328,4 +340,5 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
 
