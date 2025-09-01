@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إعلان ومراجعة اللغة الإنجليزية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body {
+    font-family: 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #0d0f21, #1a1d36);
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 1rem;
+}
+
+.poll-wrapper { width: 100%; max-width: 600px; }
+
+.total-votes-display {
+    display: inline-block;
+    background-color: rgba(255,255,255,0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.poll-container {
+    background: rgba(30,38,63,0.6);
+    border-radius: 20px;
+    padding: 2.5rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+.poll-voting h3 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: #fff;
+    text-shadow: 0 0 10px #28a745, 0 0 20px #28a745;
+}
+
+.poll-voting .announcement-details {
+    font-size: 1.1em;
+    color: #c0c8d9;
+    margin-bottom: 2rem;
+    line-height: 1.7;
+    padding: 0.5rem 1rem;
+    background: rgba(40, 50, 80, 0.4);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+#trigger-word { cursor:pointer; color:#FFD700; font-weight:bold; }
+
+.poll-voting .poll-question { font-size: 1.2em; font-weight: 600; margin-bottom: 1.5rem; }
+
+.poll-options {
+    display: flex;
+    gap: 1rem;
+}
+.poll-options button {
+    flex: 1;
+    padding: 1rem;
+    border-radius: 15px;
+    border: none;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.poll-options button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+.yes-btn { background: linear-gradient(135deg,#28a745,#00c851); }
+.no-btn { background: linear-gradient(135deg,#dc3545,#ff4444); }
+
+.poll-results { display: none; text-align: right; }
+
+.feedback-message {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+.feedback-message .icon {
+    width: 12px; height: 12px; border-radius: 50%;
+    background-color: #28a745;
+}
+
+.poll-results h2 {
+    font-size: 2em;
+    margin-bottom: 2rem;
+    text-align: center;
+    text-shadow: 0 0 10px #4a90e2;
+}
+
+.result-item { margin-bottom: 1.5rem; }
+
+.result-label {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+}
+.result-label .percentage, .result-label .votes-count { font-size: 0.9em; color: #a0a8b9; }
+
+.progress-bar {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 30px;
+    height: 14px;
+    overflow: hidden;
+}
+.progress { height: 100%; border-radius: 30px; transition: width 0.5s ease-in-out; }
+.progress-yes { background: linear-gradient(90deg,#28a745,#00c851); }
+.progress-no { background: linear-gradient(90deg,#dc3545,#ff4444); }
+
+#revote-btn, #admin-reset-btn {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1em;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+#revote-btn { background: rgba(255,255,255,0.05); color: #a0a8b9; text-decoration: underline; }
+#revote-btn:hover { color: #fff; transform: translateY(-2px); }
+#admin-reset-btn { background: #ff5722; color: #fff; display:none; }
+#admin-reset-btn:hover { transform: translateY(-2px); }
+
+#admin-login-btn {
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    border: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+}
+
+.footer { margin-top: 2rem; font-size: 0.9em; color: #a0a8b9; text-align:center; }
+
+@media (max-width:480px) {
+    .poll-container { padding: 1.5rem; }
+    .poll-voting h3 { font-size: 1.5em; }
+    .poll-options { flex-direction: column; }
+    .poll-results h2 { font-size: 1.6em; }
+}
+</style>
+</head>
+<body>
+
+<div class="poll-wrapper">
+    <div class="total-votes-display">
+        إجمالي الأصوات: <span id="total-votes-counter">0</span>
+    </div>
+
+    <div class="poll-container">
+        <div class="poll-voting" id="poll-voting">
+            <h3>الأستاذ خالد عبد الحميد الأسطل</h3>
+            <p class="announcement-details">
+                ترقبوا المراجعة الأضخم لمادة اللغة الإنجليزية برسوم رمزية <span id="trigger-word">جداً</span> وتشمل كل القواعد والمهارات الأساسية.
+            </p>
+            <p class="poll-question"><b>الاستطلاع:</b> هل ترغب بالانضمام للمراجعة؟</p>
+            <div class="poll-options">
+                <button class="no-btn" onclick="submitVote('no')">لا أرغب</button>
+                <button class="yes-btn" onclick="submitVote('yes')">نعم، أرغب بالانضمام</button>
+            </div>
+        </div>
+
+        <div class="poll-results" id="poll-results">
+            <div class="feedback-message">
+                <span class="icon"></span>
+                تم تسجيل تصويتك! شكراً لمشاركتك!
+            </div>
+            <h2>نتائج فورية</h2>
+
+            <div class="result-item">
+                <div class="result-label">
+                    <span>نعم <span class="percentage" id="yes-percentage-text"></span></span>
+                    <span class="votes-count" id="yes-votes-text"></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress progress-yes" id="yes-progress" style="width:0%;"></div>
+                </div>
+            </div>
+
+            <div class="result-item">
+                <div class="result-label">
+                    <span>لا <span class="percentage" id="no-percentage-text"></span></span>
+                    <span class="votes-count" id="no-votes-text"></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress progress-no" id="no-progress" style="width:0%;"></div>
+                </div>
+            </div>
+
+            <button id="revote-btn">تصويت من جديد</button>
+            <button id="admin-reset-btn">إعادة ضبط الأصوات (Admin)</button>
+        </div>
+    </div>
+
+    <!-- زر Admin مخفي -->
+    <button id="admin-login-btn"></button>
+</div>
+
+<footer class="footer">الموقع برعاية Mr. Khaled Alastal</footer>
+
+<script>
+let votes = { yes:0, no:0 };
+const pollVotingEl = document.getElementById('poll-voting');
+const pollResultsEl = document.getElementById('poll-results');
+const totalVotesCounterEl = document.getElementById('total-votes-counter');
+const revoteBtn = document.getElementById('revote-btn');
+const adminLoginBtn = document.getElementById('admin-login-btn');
+const adminResetBtn = document.getElementById('admin-reset-btn');
+
+function calculateTotalVotes(){ return votes.yes+votes.no; }
+
+function updateUI(){
+    const totalVotes=calculateTotalVotes();
+    const yesPercentage=totalVotes===0?0:Math.round((votes.yes/totalVotes)*100);
+    const noPercentage=totalVotes===0?0:100-yesPercentage;
+    totalVotesCounterEl.textContent=totalVotes;
+    document.getElementById('yes-percentage-text').textContent=`• ${yesPercentage}%`;
+    document.getElementById('no-percentage-text').textContent=`• ${noPercentage}%`;
+    document.getElementById('yes-votes-text').textContent=`${votes.yes} صوت`;
+    document.getElementById('no-votes-text').textContent=`${votes.no} صوت`;
+    document.getElementById('yes-progress').style.width=`${yesPercentage}%`;
+    document.getElementById('no-progress').style.width=`${noPercentage}%`;
+}
+
+function submitVote(option){
+    if(option==='yes') votes.yes++; else votes.no++;
+    localStorage.setItem('userVoted','true');
+    localStorage.setItem('userChoice',option);
+    localStorage.setItem('pollVotes',JSON.stringify(votes));
+    updateUI();
+    pollVotingEl.style.display='none';
+    pollResultsEl.style.display='block';
+}
+
+revoteBtn.addEventListener('click',()=>{
+    const lastChoice=localStorage.getItem('userChoice');
+    if(lastChoice==='yes'&&votes.yes>0) votes.yes--;
+    else if(lastChoice==='no'&&votes.no>0) votes.no--;
+    localStorage.removeItem('userVoted');
+    localStorage.removeItem('userChoice');
+    localStorage.setItem('pollVotes',JSON.stringify(votes));
+    totalVotesCounterEl.textContent=calculateTotalVotes();
+    pollVotingEl.style.display='block';
+    pollResultsEl.style.display='none';
+});
+
+// اظهار الزر عند الضغط على كلمة "جداً"
+document.getElementById('trigger-word').addEventListener('click',()=>{
+    adminLoginBtn.style.opacity='1';
+    adminLoginBtn.style.width='auto';
+    adminLoginBtn.style.height='auto';
+    adminLoginBtn.style.position='static';
+    alert("زر التسجيل أصبح مرئي الآن");
+});
+
+// تسجيل دخول Admin
+adminLoginBtn.addEventListener('click',()=>{
+    const username=prompt("ادخل اسم المستخدم:");
+    const password=prompt("ادخل كلمة المرور:");
+    if(username==='yazan' && password==='ya20066'){
+        adminResetBtn.style.display='inline-block';
+        alert("تم تسجيل الدخول كمدير");
+    }else alert("اسم المستخدم أو كلمة المرور خاطئ");
+});
+
+// إعادة ضبط الأصوات
+adminResetBtn.addEventListener('click',()=>{
+    if(confirm("هل أنت متأكد من مسح جميع الأصوات؟")){
+        localStorage.removeItem('pollVotes');
+        localStorage.removeItem('userVoted');
+        localStorage.removeItem('userChoice');
+        votes={yes:0,no:0};
+        alert("تم مسح جميع الأصوات!");
+        location.reload();
+    }
+});
+
+document.addEventListener('DOMContentLoaded',()=>{
+    const savedVotes = localStorage.getItem('pollVotes');
+    if(savedVotes) votes=JSON.parse(savedVotes);
+    const userVoted = localStorage.getItem('userVoted')==='true';
+    if(userVoted){
+        updateUI();
+        pollVotingEl.style.display='none';
+        pollResultsEl.style.display='block';
+    } else totalVotesCounterEl.textContent=calculateTotalVotes();
+});
+</script>
+</body>
+</html>
