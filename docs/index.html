@@ -152,15 +152,22 @@ body {
 #admin-reset-btn:hover { transform: translateY(-2px); }
 
 #admin-login-btn {
-    opacity: 0;
-    width: 1px;
-    height: 1px;
+    display: none;               /* مخفي في البداية */
+    position: relative;          /* أو relative/absolute حسب الحاجة */
+    left: 50%;                   /* نقل منتصف الزر إلى منتصف الشاشة */
+    transform: translateX(-50%); /* تعديل المركز ليصبح متساويًا */
+    margin-top: 15px;            /* مسافة من الفوتر */
+    padding: 10px 25px;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: 12px;
     border: none;
-    position: absolute;
-    left: 0;
-    top: 0;
+    background-color: #ff5722;
+    color: #fff;
     cursor: pointer;
+    text-align: center;
 }
+
 
 .footer { margin-top: 2rem; font-size: 0.9em; color: #a0a8b9; text-align:center; }
 
@@ -321,3 +328,4 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
