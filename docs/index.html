@@ -183,7 +183,7 @@ body {
         <div class="poll-voting" id="poll-voting">
             <h3>الأستاذ خالد عبد الحميد الأسطل</h3>
             <p class="announcement-details">
-                ترقبوا المراجعة الأضخم لمادة اللغة الإنجليزية برسوم رمزية <span id="trigger-word">جداً</span> وتشمل كل القواعد والمهارات الأساسية.
+                ترقبوا المراجعة الأضخم لمادة اللغة الإنجليزية برسوم رمزيةء <span id="trigger-word">جداً</span> وتشمل كل القواعد والمهارات الأساسية.
             </p>
             <p class="poll-question"><b>الاستطلاع:</b> هل ترغب بالانضمام للمراجعة؟</p>
             <div class="poll-options">
@@ -225,11 +225,11 @@ body {
     </div>
 
     <!-- زر Admin مخفي -->
-    <button id="admin-login-btn"></button>
+    
 </div>
 
 <footer class="footer">الموقع برعاية Mr. Khaled Alastal</footer>
-
+<button id="admin-login-btn"></button>
 <script>
 let votes = { yes:0, no:0 };
 const pollVotingEl = document.getElementById('poll-voting');
@@ -282,6 +282,7 @@ document.getElementById('trigger-word').addEventListener('click',()=>{
     adminLoginBtn.style.width='auto';
     adminLoginBtn.style.height='auto';
     adminLoginBtn.style.position='static';
+btn.style.display = 'block';
     alert("زر التسجيل أصبح مرئي الآن");
 });
 
