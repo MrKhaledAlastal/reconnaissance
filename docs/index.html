@@ -151,34 +151,16 @@ body {
 #admin-reset-btn { background: #ff5722; color: #fff; display:none; }
 #admin-reset-btn:hover { transform: translateY(-2px); }
 
-#admin-login-btn {
-    display: none;               /* مخفي في البداية */
-    position: relative;          /* أو relative/absolute حسب الحاجة */
-    left: 50%;                   /* نقل منتصف الزر إلى منتصف الشاشة */
-    transform: translateX(-50%); /* تعديل المركز ليصبح متساويًا */
-    margin-top: 15px;            /* مسافة من الفوتر */
-    padding: 10px 25px;
-    font-size: 1em;
-    font-weight: 600;
-    border-radius: 12px;
-    border: none;
-    background-color: #ff5722;
-    color: #fff;
-    cursor: pointer;
-    text-align: center;
-}
-
-    #admin-trigger-line {
+#admin-trigger-line {
     font-size: 0.9em;
     color: #FFD700;
     text-decoration: underline;
-    display: none; /* مخفي في البداية */
+    display: none;
+    text-align: center;
+    margin-top:5px;
+    cursor:pointer;
 }
-#admin-trigger-line:hover {
-    color: #fff;
-}
-
-
+#admin-trigger-line:hover { color: #fff; }
 
 .footer { margin-top: 2rem; font-size: 0.9em; color: #a0a8b9; text-align:center; }
 
@@ -201,12 +183,12 @@ body {
         <div class="poll-voting" id="poll-voting">
             <h3>الأستاذ خالد عبد الحميد الأسطل</h3>
             <p class="announcement-details">
-                ترقبوا المراجعة الأضخم لمادة اللغة الإنجليزية برسوم رمزيةء <span id="trigger-word">جداً</span> وتشمل كل القواعد والمهارات الأساسية.
+                ترقبوا المراجعة الأضخم لمادة اللغة الإنجليزية برسوم رمزية <span id="trigger-word">جداً</span> وتشمل كل القواعد والمهارات الأساسية.
             </p>
             <p class="poll-question"><b>الاستطلاع:</b> هل ترغب بالانضمام للمراجعة؟</p>
             <div class="poll-options">
-                <button class="no-btn" onclick="submitVote('no')">لا أرغب</button>
-                <button class="yes-btn" onclick="submitVote('yes')">نعم، أرغب بالانضمام</button>
+                <button class="no-btn" id="no-btn">لا أرغب</button>
+                <button class="yes-btn" id="yes-btn">نعم، أرغب بالانضمام</button>
             </div>
         </div>
 
@@ -241,124 +223,99 @@ body {
             <button id="admin-reset-btn">إعادة ضبط الأصوات (Admin)</button>
         </div>
     </div>
-
-    <!-- زر Admin مخفي -->
-    
 </div>
 
 <footer class="footer">الموقع برعاية Mr. Khaled Alastal</footer>
-<div id="admin-trigger-line" style="display:none; text-align:center; margin-top:5px; cursor:pointer;">
-    ⬇️ اضغط للدخول كـ Admin
-</div>
-<script>
-let votes = { yes:0, no:0 };
-const pollVotingEl = document.getElementById('poll-voting');
-const pollResultsEl = document.getElementById('poll-results');
-const totalVotesCounterEl = document.getElementById('total-votes-counter');
-const revoteBtn = document.getElementById('revote-btn');
-const adminLoginBtn = document.getElementById('admin-login-btn');
-const adminResetBtn = document.getElementById('admin-reset-btn');
+<div id="admin-trigger-line">⬇️ اضغط للدخول كـ Admin</div>
 
-function calculateTotalVotes(){ return votes.yes+votes.no; }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-function updateUI(){
-    const totalVotes=calculateTotalVotes();
-    const yesPercentage=totalVotes===0?0:Math.round((votes.yes/totalVotes)*100);
-    const noPercentage=totalVotes===0?0:100-yesPercentage;
-    totalVotesCounterEl.textContent=totalVotes;
-    document.getElementById('yes-percentage-text').textContent=`• ${yesPercentage}%`;
-    document.getElementById('no-percentage-text').textContent=`• ${noPercentage}%`;
-    document.getElementById('yes-votes-text').textContent=`${votes.yes} صوت`;
-    document.getElementById('no-votes-text').textContent=`${votes.no} صوت`;
-    document.getElementById('yes-progress').style.width=`${yesPercentage}%`;
-    document.getElementById('no-progress').style.width=`${noPercentage}%`;
-}
+  const firebaseConfig = {
+    apiKey: "AIzaSyAL4nEMkKjW1IR01B5IqzeJCZPxOu0FXpQ",
+    authDomain: "english-b9cfa.firebaseapp.com",
+    projectId: "english-b9cfa",
+    storageBucket: "english-b9cfa.firebasestorage.app",
+    messagingSenderId: "530598661473",
+    appId: "1:530598661473:web:a5258fad7ab809f3220920",
+    measurementId: "G-SCS59TX844"
+  };
 
-function submitVote(option){
-    if(option==='yes') votes.yes++; else votes.no++;
-    localStorage.setItem('userVoted','true');
-    localStorage.setItem('userChoice',option);
-    localStorage.setItem('pollVotes',JSON.stringify(votes));
-    updateUI();
-    pollVotingEl.style.display='none';
-    pollResultsEl.style.display='block';
-}
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-revoteBtn.addEventListener('click',()=>{
-    const lastChoice=localStorage.getItem('userChoice');
-    if(lastChoice==='yes'&&votes.yes>0) votes.yes--;
-    else if(lastChoice==='no'&&votes.no>0) votes.no--;
-    localStorage.removeItem('userVoted');
-    localStorage.removeItem('userChoice');
-    localStorage.setItem('pollVotes',JSON.stringify(votes));
-    totalVotesCounterEl.textContent=calculateTotalVotes();
-    pollVotingEl.style.display='block';
-    pollResultsEl.style.display='none';
-});
+  const pollVotingEl = document.getElementById('poll-voting');
+  const pollResultsEl = document.getElementById('poll-results');
+  const totalVotesCounterEl = document.getElementById('total-votes-counter');
+  const revoteBtn = document.getElementById('revote-btn');
+  const adminResetBtn = document.getElementById('admin-reset-btn');
 
-// اظهار الزر عند الضغط على كلمة "جداً"
-// عند الضغط على كلمة "جداً" يظهر الخط/السهم
-document.getElementById('trigger-word').addEventListener('click', ()=>{
-    document.getElementById('admin-trigger-line').style.display = 'block';
-});
+  const yesBtn = document.getElementById('yes-btn');
+  const noBtn = document.getElementById('no-btn');
 
-// عند الضغط على السهم يظهر نافذة تسجيل الدخول للـ Admin
-document.getElementById('admin-trigger-line').addEventListener('click', ()=>{
-    const username = prompt("ادخل اسم المستخدم:");
-    const password = prompt("ادخل كلمة المرور:");
-    if(username==='yazan' && password==='ya20066'){
-        document.getElementById('admin-reset-btn').style.display='inline-block';
-        alert("تم تسجيل الدخول كمدير");
-    } else {
-        alert("اسم المستخدم أو كلمة المرور خاطئ");
-    }
-});
+  function updateUI(yesVotes, noVotes){
+      const totalVotes = yesVotes + noVotes;
+      const yesPercent = totalVotes===0?0:Math.round((yesVotes/totalVotes)*100);
+      const noPercent = totalVotes===0?0:100-yesPercent;
 
-// تسجيل دخول Admin
-adminLoginBtn.addEventListener('click',()=>{
-    const username=prompt("ادخل اسم المستخدم:");
-    const password=prompt("ادخل كلمة المرور:");
-    if(username==='yazan' && password==='ya20066'){
-        adminResetBtn.style.display='inline-block';
-        alert("تم تسجيل الدخول كمدير");
-    }else alert("اسم المستخدم أو كلمة المرور خاطئ");
-});
+      totalVotesCounterEl.textContent = totalVotes;
+      document.getElementById('yes-percentage-text').textContent = `• ${yesPercent}%`;
+      document.getElementById('no-percentage-text').textContent = `• ${noPercent}%`;
+      document.getElementById('yes-votes-text').textContent = `${yesVotes} صوت`;
+      document.getElementById('no-votes-text').textContent = `${noVotes} صوت`;
+      document.getElementById('yes-progress').style.width = yesPercent + '%';
+      document.getElementById('no-progress').style.width = noPercent + '%';
+  }
 
-// إعادة ضبط الأصوات
-adminResetBtn.addEventListener('click',()=>{
-    if(confirm("هل أنت متأكد من مسح جميع الأصوات؟")){
-        localStorage.removeItem('pollVotes');
-        localStorage.removeItem('userVoted');
-        localStorage.removeItem('userChoice');
-        votes={yes:0,no:0};
-        alert("تم مسح جميع الأصوات!");
-        location.reload();
-    }
-});
+  async function submitVote(option){
+      const votesRef = ref(db, 'pollVotes');
+      const snapshot = await get(votesRef);
+      let votes = snapshot.exists() ? snapshot.val() : {yes:0, no:0};
 
-document.getElementById('admin-trigger-line').addEventListener('click', ()=>{
-    const username = prompt("ادخل اسم المستخدم:");
-    const password = prompt("ادخل كلمة المرور:");
-    if(username==='yazan' && password==='ya20066'){
-        document.getElementById('admin-reset-btn').style.display='inline-block';
-        alert("تم تسجيل الدخول كمدير");
-    } else {
-        alert("اسم المستخدم أو كلمة المرور خاطئ");
-    }
-});
-document.addEventListener('DOMContentLoaded',()=>{
-    const savedVotes = localStorage.getItem('pollVotes');
-    if(savedVotes) votes=JSON.parse(savedVotes);
-    const userVoted = localStorage.getItem('userVoted')==='true';
-    if(userVoted){
-        updateUI();
-        pollVotingEl.style.display='none';
-        pollResultsEl.style.display='block';
-    } else totalVotesCounterEl.textContent=calculateTotalVotes();
-});
+      if(option === 'yes') votes.yes++;
+      else votes.no++;
+
+      await set(votesRef, votes);
+      pollVotingEl.style.display = 'none';
+      pollResultsEl.style.display = 'block';
+  }
+
+  yesBtn.addEventListener('click',()=>submitVote('yes'));
+  noBtn.addEventListener('click',()=>submitVote('no'));
+
+  revoteBtn.addEventListener('click', async ()=>{
+      pollVotingEl.style.display='block';
+      pollResultsEl.style.display='none';
+  });
+
+  // عرض النتائج لكل الزوار مباشرة
+  const votesRef = ref(db, 'pollVotes');
+  onValue(votesRef, (snapshot)=>{
+      const votes = snapshot.exists() ? snapshot.val() : {yes:0,no:0};
+      updateUI(votes.yes, votes.no);
+  });
+
+  // زر Admin عند الضغط على كلمة "جداً"
+  document.getElementById('trigger-word').addEventListener('click', ()=>{
+      document.getElementById('admin-trigger-line').style.display = 'block';
+  });
+
+  document.getElementById('admin-trigger-line').addEventListener('click', async ()=>{
+      const username = prompt("ادخل اسم المستخدم:");
+      const password = prompt("ادخل كلمة المرور:");
+      if(username==='yazan' && password==='ya20066'){
+          adminResetBtn.style.display='inline-block';
+          alert("تم تسجيل الدخول كمدير");
+      } else alert("اسم المستخدم أو كلمة المرور خاطئ");
+  });
+
+  adminResetBtn.addEventListener('click', async ()=>{
+      if(confirm("هل أنت متأكد من مسح جميع الأصوات؟")){
+          await set(ref(db, 'pollVotes'), {yes:0,no:0});
+          alert("تم مسح جميع الأصوات!");
+      }
+  });
 </script>
 </body>
 </html>
-
-
-
