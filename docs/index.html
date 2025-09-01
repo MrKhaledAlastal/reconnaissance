@@ -146,8 +146,19 @@ body {
     font-weight: 600;
     transition: transform 0.2s;
 }
-#revote-btn { background: rgba(255,255,255,0.05); color: #a0a8b9; text-decoration: underline; }
-#revote-btn:hover { color: #fff; transform: translateY(-2px); }
+#revote-btn { 
+    background: transparent;  /* خلفية شفافة */
+    color: transparent;       /* النص شفاف */
+    border: none;             /* إزالة الحدود */
+    text-decoration: none;
+    width: 100%;              /* يمكنك تعديل العرض حسب الحاجة */
+    cursor: pointer;          /* يظل قابل للنقر */
+    padding: 10px 20px;       /* يمكنك ضبط المساحة */
+}
+#revote-btn:hover {
+    /* لا تغييرات عند التحويم أو ضع ما تريد */
+}
+
 #admin-reset-btn { background: #ff5722; color: #fff; display:none; }
 #admin-reset-btn:hover { transform: translateY(-2px); }
 
@@ -219,6 +230,7 @@ body {
                 </div>
             </div>
 
+          <button id="revote-btn">تصويت من جديد</button>
             <button id="admin-reset-btn">إعادة ضبط الأصوات (Admin)</button>
         </div>
     </div>
@@ -253,6 +265,9 @@ body {
   const yesBtn = document.getElementById('yes-btn');
   const noBtn = document.getElementById('no-btn');
 
+  // استخدم localStorage لتتبع صوت المستخدم الحالي
+  let userVote = localStorage.getItem('userChoice') || null;
+
   function updateUI(yesVotes, noVotes){
       const totalVotes = yesVotes + noVotes;
       const yesPercent = totalVotes===0?0:Math.round((yesVotes/totalVotes)*100);
@@ -272,10 +287,21 @@ body {
       const snapshot = await get(votesRef);
       let votes = snapshot.exists() ? snapshot.val() : {yes:0, no:0};
 
+      // إذا كان المستخدم قد صوّت سابقاً، نخفض صوته القديم
+      if(userVote){
+          if(userVote === 'yes' && votes.yes>0) votes.yes--;
+          else if(userVote === 'no' && votes.no>0) votes.no--;
+      }
+
+      // تسجيل التصويت الجديد
       if(option === 'yes') votes.yes++;
       else votes.no++;
 
+      // حفظ التصويت الجديد
       await set(votesRef, votes);
+      userVote = option;
+      localStorage.setItem('userChoice', option);
+
       pollVotingEl.style.display = 'none';
       pollResultsEl.style.display = 'block';
   }
@@ -284,6 +310,10 @@ body {
   noBtn.addEventListener('click',()=>submitVote('no'));
 
   revoteBtn.addEventListener('click', async ()=>{
+      // عند التصويت من جديد، نحذف صوت المستخدم القديم
+      userVote = null;
+      localStorage.removeItem('userChoice');
+
       pollVotingEl.style.display='block';
       pollResultsEl.style.display='none';
   });
@@ -293,6 +323,12 @@ body {
   onValue(votesRef, (snapshot)=>{
       const votes = snapshot.exists() ? snapshot.val() : {yes:0,no:0};
       updateUI(votes.yes, votes.no);
+
+      // إذا كان المستخدم قد صوّت، أظهر له صفحة النتائج مباشرة
+      if(localStorage.getItem('userChoice')){
+          pollVotingEl.style.display='none';
+          pollResultsEl.style.display='block';
+      }
   });
 
   // زر Admin عند الضغط على كلمة "جداً"
@@ -312,10 +348,12 @@ body {
   adminResetBtn.addEventListener('click', async ()=>{
       if(confirm("هل أنت متأكد من مسح جميع الأصوات؟")){
           await set(ref(db, 'pollVotes'), {yes:0,no:0});
+          localStorage.removeItem('userChoice'); // حذف تصويت المستخدم من الجهاز
+          userVote = null;
           alert("تم مسح جميع الأصوات!");
       }
   });
 </script>
+
 </body>
 </html>
-
